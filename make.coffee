@@ -8,6 +8,7 @@ target.compile = ->
 issues = [
   'basic'
   'ctrl'
+  'large'
 ]
 
 target.test = ->

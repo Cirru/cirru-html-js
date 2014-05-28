@@ -91,18 +91,24 @@ class Expr
           tagCode += "_html+='>';"
           attrFinished = yes
         if expr.getType() is 'token'
-          tagCode += "_html+='#{expr.render()}'"
+          tagCode += "_html+='#{expr.render()}';"
         else
           tagCode += expr.render()
     if not attrFinished
       tagCode += "_html+='>';"
-    tagCode += "_html+='</#{tagName}>'"
+    tagCode += "_html+='</#{tagName}>';"
     return tagCode
 
   renderAttr: ->
     attr = @_func.render()[1..]
-    value = @_children[0].render()
-    "_html+=' #{attr}=\"#{value}\"';"
+    value = @_children[0]
+    if value.getType() is 'token'
+      return "_html+=' #{attr}=\"#{value.render()}\"';"
+    else
+      code = "_html+=' #{attr}=\"';"
+      code += value.render()
+      code += "'\"';"
+      return code
 
   renderExpr: ->
     markup = @_func.render()
@@ -149,6 +155,14 @@ class Expr
       .join(',')
       code = "_call['#{method}'](#{args})"
       return code
+
+    if markup is '@rich'
+      name = @_children[0].render()
+      contentExpr = @_children[1]
+      code = """if(#{@_resource}['#{name}'].length>0){
+        #{contentExpr.render()}
+      }
+      """
 
   renderHtml: ->
     markup = @_func.render()
