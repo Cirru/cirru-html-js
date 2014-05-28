@@ -2,12 +2,12 @@
 Cirru HTML .js
 ------
 
-Compile Cirru HTML into JavaScript template.
+Compile Cirru HTML into JavaScript template function.
 
 ### Usage
 
-This project is related to Cirru-HTML which compiles Cirru to HTML.
-But this package compile it to JavaScript instead.
+This project is related to Cirru HTML which compiles Cirru to HTML.
+This project compiles it to JavaScript instead.
 
 They are sharing similar syntaxes on writing HTML.
 
@@ -16,13 +16,13 @@ Syntax:
 * Jade-like(CSS Selectors) syntax for tags(with `class` and `id`)
 * `(:a b)` syntax for `a="b"`
 * tokens start with `@` are controllers
+* `(= a)` to render `a` as text
+* `(== a)` to render `a` as html
 
-... and other grammars inherented from Cirru Grammar.
+... and grammars inherited from Cirru Grammar.
 
 Controllers:
 
-* `(= a)` to render a as text
-* `(== a)` to render a as html
 * `(@ a)` to get a from resource
 * `(@if cond a b)` for conditions, `b` is optional
 * `(@unless cond a b)` for conditions, `b` is optional
