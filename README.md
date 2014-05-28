@@ -38,10 +38,10 @@ For such a demo, it compiles to:
 {render} = require 'cirru-html-js'
 render '@if (@ a) (div b)'
 ```
-```
+```js
 (function(resource, call){
   var html;
-  if(html+=resource['a'];){html+='<div>b</div>';}
+  if(resource['a']){html+='<div>b</div>';}
   return html;
 })
 ```

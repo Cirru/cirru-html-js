@@ -96,7 +96,10 @@ class Expr
     markup = @head
     if markup is '@'
       variable = @_children[0]
-      share.add js: "html+=#{@_resource}['#{variable.get()}'];"
+      if @inCondition
+        share.add js: "#{@_resource}['#{variable.get()}']"
+      else
+        share.add js: "html+=#{@_resource}['#{variable.get()}'];"
 
       return
 
@@ -105,6 +108,7 @@ class Expr
       trueExpr = @_children[1]
       falseExpr = @_children[2]
       share.add js: 'if('
+      condition.inCondition = yes
       condition.render()
       share.add js: '){'
       trueExpr.render()
@@ -152,7 +156,10 @@ class Expr
       args = @_children[1..]
       .map (item) => "#{@_resource}['#{item.get()}']"
       .join(',')
-      share.add js: "call['#{method}'](#{args})"
+      if @inCondition
+        share.add js: "call['#{method}'](#{args})"
+      else
+        share.add js: "html+=call['#{method}'](#{args})"
 
       return
 
