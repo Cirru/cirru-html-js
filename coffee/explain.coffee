@@ -1,187 +1,184 @@
 
 tags = require './tags'
 
-share =
-  count: 0
-  _variables: []
-  toCode: ->
-    if @_variables.length > 0
-      "var #{@_variables.join(',')};"
-    else ''
-  newVar: ->
-    varName = "_var_#{@count}"
-    @count += 1
-    @_variables.push varName
-    varName
+share = require './share'
 
 exports.explain = (cirruAsts) ->
 
   html = ''
-  _resource = '_resource'
+  _resource = 'resource'
 
   for cirruExpr in cirruAsts
-    html += (new Expr cirruExpr, _resource).render()
+    (new Expr cirruExpr, _resource).render()
+    html += share.generateCode()
 
-  """function(_resource, _call){
-    #{share.toCode()}
-    var _html = '';
+  """(function(resource, call){
+    #{share.declareVariables()}
     #{html}
-    return _html;
-  }"""
+    return html;
+  })"""
 
 class Expr
   constructor: (@_cirruExpr, @_resource) ->
-    @_func = new Token @_cirruExpr[0]
+    @head = (new Token @_cirruExpr[0]).get()
     @_children = @_cirruExpr[1..].map (item) =>
       if Array.isArray item then new Expr item, @_resource
       else new Token item
 
-    mark = @_func.render()[0]
+    mark = @head[0]
     if mark is '@'
-      @_type = 'expr'
+      @type = 'expr'
       @render = @renderExpr
     else if mark is '='
-      @_type = 'html'
+      @type = 'html'
       @render = @renderHtml
     else if mark is ':'
-      @_type = 'attr'
+      @type = 'attr'
       @render = @renderAttr
     else
-      @_type = 'tag'
+      @type = 'tag'
       @render = @renderTag
 
-  render: ->
-    @_generator.render()
-
   renderTag: ->
-    markup = @_func.render()
+    markup = @head
 
     tagName = 'div'
     tagMatch = markup.match /^[\w\d-_]+/
     if tagMatch?
       tagName = tagMatch[0]
-    tagCode = "_html+='<#{tagName}';"
+    share.add html: "<#{tagName}"
 
     idMatch = markup.match /#[\w\d-_]+/
     if idMatch?
       idName = idMatch[0][1..]
-      tagCode += "_html+=' id=\"#{idName}\"'"
+      share.add html: " id=\"#{idName}\""
 
     classMatch = markup.match /\.[\w\d-_]+/g
     if classMatch?
       className = classMatch.map((x)->x[1..]).join(' ')
-      tagCode += "_html+=' class=\"#{className}\"'"
+      share.add html: " class=\"#{className}\""
 
     if tagName in tags.selfClose
       for expr in @_children
-        tagCode += expr.render()
-      tagCode += "_html+='>';"
-      return tagCode
+        expr.render()
+      share.add html: '>'
+
+      return
 
     # so tahName is not self-closed
     attrFinished = no
 
     for expr in @_children
-      if expr.getType() is 'attr'
+      if expr.type is 'attr'
         if attrFinished
           @caution 'already closed', expr
-        tagCode += expr.render()
+        expr.render()
       else
         if not attrFinished
-          tagCode += "_html+='>';"
+          share.add html: '>'
           attrFinished = yes
-        if expr.getType() is 'token'
-          tagCode += "_html+='#{expr.render()}';"
-        else
-          tagCode += expr.render()
+        expr.render()
     if not attrFinished
-      tagCode += "_html+='>';"
-    tagCode += "_html+='</#{tagName}>';"
-    return tagCode
+      share.add html: '>'
+    share.add html: "</#{tagName}>"
 
   renderAttr: ->
-    attr = @_func.render()[1..]
+    attr = @head[1..]
     value = @_children[0]
-    if value.getType() is 'token'
-      return "_html+=' #{attr}=\"#{value.render()}\"';"
+    if value.type is 'token'
+      share.add html: " #{attr}=\"#{value.get()}\""
     else
-      code = "_html+=' #{attr}=\"';"
-      code += value.render()
-      code += "'\"';"
-      return code
+      share.add html: " #{attr}=\""
+      value.render()
+      share.add html: '"'
 
   renderExpr: ->
-    markup = @_func.render()
+    markup = @head
     if markup is '@'
       variable = @_children[0]
-      code = "_html+=#{@_resource}['#{variable.render()}'];"
-      return code
+      share.add js: "html+=#{@_resource}['#{variable.get()}'];"
+
+      return
 
     if markup is '@if'
-      condition = @_children[0].render()
+      condition = @_children[0]
       trueExpr = @_children[1]
       falseExpr = @_children[2]
-      code = "if(#{condition}){#{trueExpr.render()}}"
+      share.add js: 'if('
+      condition.render()
+      share.add js: '){'
+      trueExpr.render()
+      share.add js: '}'
       if falseExpr?
-        code += "else{#{falseExpr.render()}}"
-      return code
+        share.add js: 'else{'
+        falseExpr.render()
+        share.add js: '}'
+
+      return
 
     if markup is '@unless'
-      condition = @_children[0].render()
+      condition = @_children[0]
       trueExpr = @_children[1]
       falseExpr = @_children[2]
-      code = "if(!(#{condition})){#{trueExpr.render()}}"
+      share.add js: 'if(!('
+      condition.render()
+      share.add js: ')){'
+      trueExpr.render()
+      share.add js: '}'
       if falseExpr?
-        code += "else{#{falseExpr.render()}}"
-      return code
+        share.add js: 'else{'
+        falseExpr.render()
+        share.add js: '}'
+
+      return
 
     if markup is '@each'
-      listName = @_children[0].render()
+      listName = @_children[0].get()
       loopExpr = @_children[1]
       indexVar = share.newVar()
       valueVar = share.newVar()
       resource = "#{@_resource}['#{listName}']"
       loopExpr.changeResource valueVar
-      code = """for(#{indexVar} in #{resource}){
-        #{valueVar}=#{resource}['#{indexVar}'];
-        #{loopExpr.render()};
-      }"""
-      return code
+
+      share.add js: "for(#{indexVar} in #{resource}){"
+      share.add js: "#{valueVar}=#{resource}[#{indexVar}];"
+      loopExpr.render()
+      share.add js: '}'
+
+      return
 
     if markup is '@call'
-      method = @_children[0].render()
+      method = @_children[0].get()
       args = @_children[1..]
-      .map (item) => "#{@_resource}['#{item.render()}']"
+      .map (item) => "#{@_resource}['#{item.get()}']"
       .join(',')
-      code = "_call['#{method}'](#{args})"
-      return code
+      share.add js: "call['#{method}'](#{args})"
+
+      return
 
     if markup is '@rich'
-      name = @_children[0].render()
+      name = @_children[0].get()
       contentExpr = @_children[1]
-      code = """if(#{@_resource}['#{name}'].length>0){
-        #{contentExpr.render()}
-      }
-      """
+      share.add js: "if(#{@_resource}['#{name}'].length>0){"
+      contentExpr.render()
+      share.add js: '}'
+
+      return
 
   renderHtml: ->
-    markup = @_func.render()
-    text = @_children[0].render()
+    markup = @head
+    text = @_children[0].get()
     if markup is '='
-      text = text
-      .replace /\s/g, '&nbsp;'
-      .replace /</g, '&lt;'
-      .replace />/g, '&gt;'
-      code = "_html+='#{text}';"
-      return code
-    else if markup is '=='
-      code = "_html+='#{text}';"
-      return code
-    else
-      @caution 'not recognize', @_func
+      share.add html: tags.escape(text)
 
-  getType: ->
-    @_type or 'expr'
+      return
+
+    if markup is '=='
+      share.add html: text
+
+      return
+
+    @caution 'not recognize', @head
 
   changeResource: (_resource) ->
     @_resource = _resource
@@ -193,8 +190,10 @@ class Expr
 class Token
   constructor: (@_cirruToken) ->
 
-  render: ->
-    @_cirruToken.text
+  type: 'token'
 
-  getType: ->
-    'token'
+  render: ->
+    share.add html: @get()
+
+  get: ->
+    @_cirruToken.text

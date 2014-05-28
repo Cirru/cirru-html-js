@@ -1,23 +1,9 @@
-function(_resource, _call) {
-
-  var _html = '';
-  _html += '<div';
-  _html += ' demo="demo"';
-  _html += ' a="aa"';
-  _html += '>';
-  _html += '<div';
-  _html += '>';
-  _html += 'x&nbsp;x';
-  _html += '</div>';
-  _html += _resource['a'];
-  _html += '</div>';
-  _html += '<a';
-  _html += ' class="demo"'
-  _html += '>';
-  _html += '</a>';
-  _html += '<div';
-  _html += ' id="b"'
-  _html += '>';
-  _html += '</div>';
-  return _html;
-}
+(function(resource, call) {
+  var html;
+  html += '<div demo="demo" a="aa"><div>x&nbsp;x</div>';
+  html += resource['a'];
+  html += '</div>';
+  html += '<a class="demo"></a>';
+  html += '<div id="b"></div>';
+  return html;
+})

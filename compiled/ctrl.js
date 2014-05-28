@@ -1,21 +1,15 @@
-function(_resource, _call) {
-  var _var_0, _var_1;
-  var _html = '';
-  if (_call['a'](_resource['b'])) {
-    _html += '<div';
-    _html += '>';
-    _html += '</div>';
+(function(resource, call) {
+  var html, _0, _1;
+  if (call['a'](resource['b'])) {
+    html += '<div></div>';
   } else {
-    _html += '<div';
-    _html += '>';
-    _html += '</div>';
+    html += '<span></span>';
   }
-  for (_var_0 in _resource['members']) {
-    _var_1 = _resource['members']['_var_0'];
-    _html += '<div';
-    _html += '>';
-    _html += _resource['name'];
-    _html += '</div>';;
+  for (_0 in resource['members']) {
+    _1 = resource['members'][_0];
+    html += '<div>';
+    html += resource['name'];
+    html += '</div>';
   }
-  return _html;
-}
+  return html;
+})

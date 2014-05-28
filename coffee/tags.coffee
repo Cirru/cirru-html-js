@@ -16,3 +16,9 @@ exports.selfClose = [
   'track'
   'wbr'
 ]
+
+exports.escape = (str) ->
+  str
+  .replace /\s/g, '&nbsp;'
+  .replace />/g, '&gt;'
+  .replace /</g, '&lt;'

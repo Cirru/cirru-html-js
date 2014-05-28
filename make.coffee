@@ -23,5 +23,6 @@ target.test = ->
     if result.trim() is htmlCode.trim()
       console.log "done: passed issue...#{issue}"
     else
+      console.log ''
       console.log "failed: on issue...#{issue}"
       console.log result
