@@ -7,6 +7,7 @@ target.compile = ->
 
 issues = [
   'basic'
+  'ctrl'
 ]
 
 target.test = ->
@@ -21,5 +22,5 @@ target.test = ->
     if result.trim() is htmlCode.trim()
       console.log "done: passed issue...#{issue}"
     else
-      console.log 'failed: on issue...#issue'
+      console.log "failed: on issue...#{issue}"
       console.log result

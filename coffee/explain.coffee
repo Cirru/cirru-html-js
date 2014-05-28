@@ -9,7 +9,10 @@ share =
       "var #{@_variables.join(',')};"
     else ''
   newVar: ->
-    "_var_#{@count}"
+    varName = "_var_#{@count}"
+    @count += 1
+    @_variables.push varName
+    varName
 
 exports.explain = (cirruAsts) ->
 
@@ -19,7 +22,7 @@ exports.explain = (cirruAsts) ->
   for cirruExpr in cirruAsts
     html += (new Expr cirruExpr, _resource).render()
 
-  """function(_resource){
+  """function(_resource, _call){
     #{share.toCode()}
     var _html = '';
     #{html}
@@ -109,34 +112,42 @@ class Expr
       return code
 
     if markup is '@if'
-      condition = @_children[0]
+      condition = @_children[0].render()
       trueExpr = @_children[1]
       falseExpr = @_children[2]
-      code = "if(#{condition}){_html+='#{trueExpr.render()}';}"
+      code = "if(#{condition}){#{trueExpr.render()}}"
       if falseExpr?
-        code += "else{_html+='#{falseExpr.render()}';}"
+        code += "else{#{falseExpr.render()}}"
       return code
 
     if markup is '@unless'
-      condition = @_children[0]
+      condition = @_children[0].render()
       trueExpr = @_children[1]
       falseExpr = @_children[2]
-      code = "if(!(#{condition})){_html+='#{trueExpr.render()}';}"
+      code = "if(!(#{condition})){#{trueExpr.render()}}"
       if falseExpr?
-        code += "else{_html+='#{falseExpr.render()}';}"
+        code += "else{#{falseExpr.render()}}"
       return code
 
     if markup is '@each'
-      declare = @_children[1]
-      loopExpr = @_children[2]
-      [items, item] = declare.split('->')
+      listName = @_children[0].render()
+      loopExpr = @_children[1]
       indexVar = share.newVar()
-      resource = "#{@_resource}['#{items}']"
-      loopExpr.changeResource item
+      valueVar = share.newVar()
+      resource = "#{@_resource}['#{listName}']"
+      loopExpr.changeResource valueVar
       code = """for(#{indexVar} in #{resource}){
-        #{item}=#{resource}['#{indexVar}'];
+        #{valueVar}=#{resource}['#{indexVar}'];
         #{loopExpr.render()};
       }"""
+      return code
+
+    if markup is '@call'
+      method = @_children[0].render()
+      args = @_children[1..]
+      .map (item) => "#{@_resource}['#{item.render()}']"
+      .join(',')
+      code = "_call['#{method}'](#{args})"
       return code
 
   renderHtml: ->

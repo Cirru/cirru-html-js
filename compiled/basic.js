@@ -1,4 +1,4 @@
-function(_resource) {
+function(_resource, _call) {
 
   var _html = '';
   _html += '<div';
