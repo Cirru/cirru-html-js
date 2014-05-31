@@ -1,5 +1,6 @@
 (function(resource, call) {
-  var html, _2, _3, _4, _5;
+  var html = '',
+    _2, _3, _4, _5;
   html += '<div id="demo-create-box"><div id="demo-create" data-lang-text="demo-create"></div><input id="demo-input" data-lang-placeholder="demo-input"></div>';
   if (resource['more'].length > 0) {
     html += '<div id="demo-more-box"><div id="demo-more" data-lang-text="demo-more"></div><div id="demo-more-list">';

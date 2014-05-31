@@ -4,8 +4,8 @@ module.exports =
   _variables: []
   declareVariables: ->
     if @_variables.length > 0
-      js = "var html, #{@_variables.join(',')};"
-    else js = 'var html;'
+      js = "var html='', #{@_variables.join(',')};"
+    else js = "var html='';"
     @_variables = []
     return js
 

@@ -1,5 +1,6 @@
 (function(resource, call) {
-  var html, _0, _1;
+  var html = '',
+    _0, _1;
   if (call['a'](resource['b'])) {
     html += '<div></div>';
   } else {

@@ -1,5 +1,5 @@
 (function(resource, call) {
-  var html;
+  var html = '';
   html += '<div demo="demo" a="aa"><div>x&nbsp;x</div>';
   html += resource['a'];
   html += '</div>';
