@@ -132,6 +132,7 @@ class Expr
       trueExpr = @_children[1]
       falseExpr = @_children[2]
       share.add js: 'if(!('
+      condition.inCondition = yes
       condition.render()
       share.add js: ')){'
       trueExpr.render()

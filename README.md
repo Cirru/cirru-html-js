@@ -48,6 +48,16 @@ render '@if (@ a) (div b)'
 ...where `resource` is data passed to render.
 `call` is an object of methods that maybe useful in template.
 
+### ChangeLog
+
+* `0.0.5`
+
+  * Fix condition syntax is `@unless`
+
+* `0.0.4`
+
+  * More flexible attribute values
+
 ### License
 
 MIT
