@@ -85,12 +85,19 @@ class Expr
   renderAttr: ->
     attr = @head[1..]
     value = @_children[0]
-    if value.type is 'token'
-      share.add html: " #{attr}=\"#{value.get()}\""
-    else
-      share.add html: " #{attr}=\""
-      value.render()
-      share.add html: '"'
+    empty = yes
+    share.add html: " #{attr}=\""
+
+    for value in @_children
+      if empty then empty = no
+      else share.add html: ' '
+
+      if value.type is 'token'
+        share.add html: value.get()
+      else
+        value.render()
+
+    share.add html: '"'
 
   renderExpr: ->
     markup = @head

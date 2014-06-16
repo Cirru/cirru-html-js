@@ -9,6 +9,7 @@ issues = [
   'basic'
   'ctrl'
   'large'
+  'class'
 ]
 
 target.test = ->
