@@ -180,6 +180,11 @@ class Expr
 
       return
 
+    if markup is '@block'
+      for child in @_children
+        child.render()
+      return
+
   renderHtml: ->
     markup = @head
     text = @_children[0].get()
@@ -197,12 +202,10 @@ class Expr
 
   changeResource: (_resource) ->
     @_resource = _resource
-    _change = (children) =>
-      if children instanceof Array
-        children.forEach _change
-      else children._resource = _resource
 
-    _change @_children
+    @_children.forEach (child) =>
+      if child instanceof Expr
+        child.changeResource _resource
 
   caution: (message, ast) ->
     console.log ast

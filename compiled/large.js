@@ -7,9 +7,9 @@
     for (_0 in resource['room']) {
       _1 = resource['room'][_0];
       html += '<div class="demo-more-room"><span class="demo-name">';
-      html += resource['topic'];
+      html += _1['topic'];
       html += '</span><span class="demo-join" data-lang-text="demo-join" data-id="';
-      html += resource['id'];
+      html += _1['id'];
       html += '"></span></div>';
     }
     html += '</div></div>';
@@ -20,7 +20,7 @@
     for (_2 in resource['joined']) {
       _3 = resource['joined'][_2];
       html += '<div class="demo-joined-room"><div class="demo-name">';
-      html += resource['topic'];
+      html += _3['topic'];
       html += '</div><span class="demo-checked">✔</span></div>';
     }
     html += '</div>';
