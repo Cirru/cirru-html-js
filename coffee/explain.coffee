@@ -20,7 +20,8 @@ exports.explain = (cirruAsts) ->
 
 class Expr
   constructor: (@_cirruExpr, @_resource) ->
-    @head = (new Token @_cirruExpr[0]).get()
+    @_info = (new Token @_cirruExpr[0])
+    @head = @_info.get()
     @_children = @_cirruExpr[1..].map (item) =>
       if Array.isArray item then new Expr item, @_resource
       else new Token item
@@ -103,6 +104,10 @@ class Expr
     markup = @head
     if markup is '@'
       variable = @_children[0]
+
+      unless variable instanceof Token
+        @caution '@ requires token', variable
+
       if @inCondition
         share.add js: "#{@_resource}['#{variable.get()}']"
       else
@@ -114,6 +119,10 @@ class Expr
       condition = @_children[0]
       trueExpr = @_children[1]
       falseExpr = @_children[2]
+
+      unless condition instanceof Expr
+        @caution '@if takes expressions in condition', condition
+
       share.add js: 'if('
       condition.inCondition = yes
       condition.render()
@@ -131,6 +140,10 @@ class Expr
       condition = @_children[0]
       trueExpr = @_children[1]
       falseExpr = @_children[2]
+
+      unless condition instanceof Expr
+        @caution '@unless takes expressions', condition
+
       share.add js: 'if(!('
       condition.inCondition = yes
       condition.render()
@@ -145,22 +158,32 @@ class Expr
       return
 
     if markup is '@each'
-      listName = @_children[0].get()
-      loopExpr = @_children[1]
+      firstNode = @_children[0]
+
+      unless firstNode instanceof Token
+        @caution "first parameter of @each supposed to be a token", firstNode
+
+      listName = firstNode.get()
       indexVar = share.newVar()
       valueVar = share.newVar()
       resource = "#{@_resource}['#{listName}']"
 
       share.add js: "for(#{indexVar} in #{resource}){"
       share.add js: "#{valueVar}=#{resource}[#{indexVar}];"
-      loopExpr.changeResource valueVar
-      loopExpr.render()
+      for loopExpr in @_children[1..]
+        loopExpr.changeResource valueVar
+        loopExpr.render()
       share.add js: '}'
 
       return
 
     if markup is '@call'
-      method = @_children[0].get()
+      firstNode = @_children[0]
+
+      unless firstNode instanceof Token
+        @caution "@call only takes tokens", firstNode
+
+      method = firstNode.get()
       args = @_children[1..]
       .map (item) => "#{@_resource}['#{item.get()}']"
       .join(',')
@@ -172,7 +195,12 @@ class Expr
       return
 
     if markup is '@rich'
-      name = @_children[0].get()
+      firstNode = @_children[0]
+
+      unless firstNode instanceof Token
+        @caution "first parameter of @rich supposed to be a token", firstNode
+
+      name = firstNode.get()
       contentExpr = @_children[1]
       share.add js: "if(#{@_resource}['#{name}'].length>0){"
       contentExpr.render()
@@ -184,6 +212,8 @@ class Expr
       for child in @_children
         child.render()
       return
+
+    @caution "\"#{markup}\" is not valid expression", @_info
 
   renderHtml: ->
     markup = @head
@@ -208,7 +238,13 @@ class Expr
         child.changeResource _resource
 
   caution: (message, ast) ->
-    console.log ast
+    if ast instanceof Expr
+      info = ast._info._cirruToken
+    else
+      info = ast._cirruToken
+    file = info.file.path or '__unknown__.cirru'
+    line = info.file.text.split('\n')[info.y]
+    console.log "\n#{file}:#{info.y}: #{line}"
     throw new Error message
 
 class Token

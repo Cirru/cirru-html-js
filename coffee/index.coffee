@@ -2,5 +2,5 @@
 {parse} = require 'cirru-parser'
 {explain} = require './explain'
 
-exports.render = (cirruCode) ->
-  explain (parse cirruCode)
+exports.render = (cirruCode, codePath) ->
+  explain (parse cirruCode, codePath)

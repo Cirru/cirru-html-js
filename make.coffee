@@ -18,9 +18,10 @@ target.test = ->
   render = require('./coffee/index').render
 
   for issue in issues
-    cirruCode = cat "cirru/#{issue}.cirru"
+    codePath = "cirru/#{issue}.cirru"
+    cirruCode = cat codePath
     htmlCode = cat "compiled/#{issue}.js"
-    result = render cirruCode
+    result = render cirruCode, codePath
     result = beautify result, indent_size: 2
     if result.trim() is htmlCode.trim()
       console.log "done: passed issue...#{issue}"
