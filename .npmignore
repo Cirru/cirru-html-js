@@ -3,3 +3,4 @@ cirru/
 coffee/
 compiled/
 make.coffee
+tests/

@@ -29,6 +29,7 @@ Controllers:
 * `(@rich a b)` to use `a.length>0` as condition
 * `(@each xs a)` for rendering `a` in list `xs`
 * `(@call a b c)` for running `a(a,b)`
+* `(@block a b c)` wrap `a b c` in a block
 
 ```
 npm i --save-dev cirru-html-js
@@ -48,7 +49,26 @@ render '@if (@ a) (div b)'
 ...where `resource` is data passed to render.
 `call` is an object of methods that maybe useful in template.
 
+### Tests
+
+```
+cd tests
+coffee make.coffee test-compile # run performance tests on compiling
+coffee make.coffee compile # just compile code
+coffee make.coffee test-run # run performance tests on templating
+```
+
+Comparing to doT, Cirru HTML.js takes about 3 times of time to compile and run.
+
 ### ChangeLog
+
+* `0.0.8`
+
+  * Add error messages and tests
+
+* `0.0.7`
+
+  * Add `@block`
 
 * `0.0.5`
 

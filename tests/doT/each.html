@@ -1,0 +1,13 @@
+
+<div>
+  {{~ it.list :first}}
+    <div class="name">{{= first.name }}</div>
+    <div class="value">{{= first.value }}</div>
+    <div>
+      {{~ first.nest :second}}
+        <div class="name">{{= second.name }}</div>
+        <div class="value">{{= second.value }}</div>
+      {{~}}
+    </div>
+  {{~}}
+</div>
