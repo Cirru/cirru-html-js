@@ -10,6 +10,7 @@ issues = [
   'ctrl'
   'large'
   'class'
+  'each'
 ]
 
 target.test = ->

@@ -150,10 +150,10 @@ class Expr
       indexVar = share.newVar()
       valueVar = share.newVar()
       resource = "#{@_resource}['#{listName}']"
-      loopExpr.changeResource valueVar
 
       share.add js: "for(#{indexVar} in #{resource}){"
       share.add js: "#{valueVar}=#{resource}[#{indexVar}];"
+      loopExpr.changeResource valueVar
       loopExpr.render()
       share.add js: '}'
 
@@ -197,6 +197,12 @@ class Expr
 
   changeResource: (_resource) ->
     @_resource = _resource
+    _change = (children) =>
+      if children instanceof Array
+        children.forEach _change
+      else children._resource = _resource
+
+    _change @_children
 
   caution: (message, ast) ->
     console.log ast

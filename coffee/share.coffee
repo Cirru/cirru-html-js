@@ -7,6 +7,7 @@ module.exports =
       js = "var html='', #{@_variables.join(',')};"
     else js = "var html='';"
     @_variables = []
+    @count = 0
     return js
 
   newVar: ->

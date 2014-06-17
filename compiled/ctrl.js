@@ -9,7 +9,7 @@
   for (_0 in resource['members']) {
     _1 = resource['members'][_0];
     html += '<div>';
-    html += resource['name'];
+    html += _1['name'];
     html += '</div>';
   }
   return html;
