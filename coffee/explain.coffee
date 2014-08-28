@@ -168,11 +168,13 @@ class Expr
       valueVar = share.newVar()
       resource = "#{@_resource}['#{listName}']"
 
-      share.add js: "for(#{indexVar} in #{resource}){"
+      share.add js: "#{indexVar} = 0;"
+      share.add js: "while(#{indexVar} < #{resource}.length){"
       share.add js: "#{valueVar}=#{resource}[#{indexVar}];"
       for loopExpr in @_children[1..]
         loopExpr.changeResource valueVar
         loopExpr.render()
+      share.add js: "#{indexVar} += 1;"
       share.add js: '}'
 
       return

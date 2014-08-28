@@ -6,11 +6,13 @@
   } else {
     html += '<span></span>';
   }
-  for (_0 in resource['members']) {
+  _0 = 0;
+  while (_0 < resource['members'].length) {
     _1 = resource['members'][_0];
     html += '<div>';
     html += _1['name'];
     html += '</div>';
+    _0 += 1;
   }
   return html;
 })

@@ -62,6 +62,10 @@ Comparing to doT, Cirru HTML.js takes about 3 times of time to compile and run.
 
 ### ChangeLog
 
+* `0.0.9`
+
+  * Replace `for` with `while` for performance
+
 * `0.0.8`
 
   * Add error messages and tests

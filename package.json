@@ -1,6 +1,6 @@
 {
   "name": "cirru-html-js",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Convert Cirru HTML to JavaScript",
   "main": "js/index.js",
   "scripts": {
